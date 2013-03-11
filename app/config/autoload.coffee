@@ -12,15 +12,20 @@ filenameToModulename = (filename) ->
 autoload = (app, dir) ->
   return unless fs.existsSync dir
 
+  dirsToLoad = []
+
   for filename in fs.readdirSync(dir)
     pathname = path.join dir, filename
 
     if fs.lstatSync(pathname).isDirectory()
-      autoload pathname
+      dirsToLoad.push(pathname)
     else
       loadedModule = require(pathname)?(app)
       modulename = filenameToModulename filename
       app.locals[modulename] = loadedModule
+
+  for dir in dirsToLoad
+    autoload app, dir
 
 module.exports = (app) ->
   (dir) ->
